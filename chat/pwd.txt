@@ -1,2 +1,0 @@
-i_hauseadmin:$2y$10$80YUVS./BqXRBVz9pEXPG.ePqMN1RxvU4fGc0EeFd5WMM8PgpzD6q
-test:$2y$10$IH3Oj.wc.E9cXC7op9rek.NJpxJIeI6DTkh7A27RqOAgxLP/Hzjyy
