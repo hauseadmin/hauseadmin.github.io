@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilafree - Майнкрафт сервер</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Основные стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #7b68ee;
+            --primary-dark: #5a4fcf;
+            --primary-light: #9d8eff;
+            --secondary: #ff6b6b;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --light: #e6e6e6;
+            --gradient: linear-gradient(135deg, #7b68ee, #6a5acd, #5a4fcf);
+            --gradient-secondary: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        }
+        
+        body {
+            background-color: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+        
+        /* Фон с размазанной картинкой и частицами */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('http://46.191.172.132/info/media/photo/glav.png');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) brightness(0.4);
+            z-index: -2;
+            transform: scale(1.1);
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(123, 104, 238, 0.3);
+            animation: floatParticle 15s infinite linear;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(26, 26, 46, 0.8), rgba(58, 12, 163, 0.4));
+            z-index: -1;
+        }
+        
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(123, 104, 238, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(123, 104, 238, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(123, 104, 238, 0.5);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes textShadow {
+            0% {
+                text-shadow: 0 0 10px rgba(123, 104, 238, 0.5);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(123, 104, 238, 0.8), 0 0 30px rgba(123, 104, 238, 0.6);
+            }
+            100% {
+                text-shadow: 0 0 10px rgba(123, 104, 238, 0.5);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* Навигация */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 0;
+            z-index: 1000;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(123, 104, 238, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        header.scrolled {
+            padding: 15px 0;
+            background: rgba(10, 10, 20, 0.95);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(123, 104, 238, 0.5);
+            animation: textShadow 3s infinite;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 32px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+            position: relative;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 18px;
+            padding: 5px 0;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Кнопка меню для мобильных */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+        
+        /* Основной контент */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            padding: 100px 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* Главный экран */
+        .hero {
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+            position: relative;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(123, 104, 238, 0.7);
+            animation: textShadow 3s infinite;
+        }
+        
+        .hero p {
+            font-size: 20px;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: var(--gradient);
+            background-size: 200% 200%;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(123, 104, 238, 0.4);
+            animation: float 3s infinite, gradientShift 3s ease infinite;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+        
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(123, 104, 238, 0.6);
+        }
+        
+        /* О сервере */
+        .about {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            margin-bottom: 80px;
+        }
+        
+        .about.reverse {
+            flex-direction: row-reverse;
+        }
+        
+        .about-content {
+            flex: 1;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+        
+        .about-image {
+            flex: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1s ease-out 0.4s both;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .about-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        
+        .about-image:hover::before {
+            opacity: 0.1;
+        }
+        
+        .about-image:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(123, 104, 238, 0.3);
+        }
+        
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .about-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        h2 {
+            font-size: 36px;
+            margin-bottom: 30px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+            animation: textShadow 3s infinite;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 3px;
+            background: var(--gradient);
+            bottom: -10px;
+            left: 0;
+            border-radius: 3px;
+        }
+        
+        /* Особенности */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .feature-card {
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(123, 104, 238, 0.3);
+            animation: fadeInUp 1s ease-out both;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(123, 104, 238, 0.1), transparent);
+            transition: 0.5s;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(123, 104, 238, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* Расписание сервера */
+        .schedule {
+            text-align: center;
+            margin: 80px 0;
+        }
+        
+        .schedule-card {
+            background: var(--gradient);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(123, 104, 238, 0.3);
+            animation: pulse 3s infinite, gradientShift 4s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .schedule-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+        
+        .schedule-card:hover::before {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(0deg);
+        }
+        
+        .schedule-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .schedule-content h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: white;
+        }
+        
+        .schedule-content p {
+            font-size: 20px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Создатель */
+        .creator {
+            text-align: center;
+            margin-top: 80px;
+        }
+        
+        .creator-content {
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .creator-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 30px;
+            border: 5px solid transparent;
+            background: var(--gradient) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            box-shadow: 0 0 20px rgba(123, 104, 238, 0.5);
+            animation: float 5s infinite;
+            transition: all 0.3s ease;
+        }
+        
+        .creator-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(123, 104, 238, 0.7);
+        }
+        
+        .creator-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Футер */
+        footer {
+            background: rgba(10, 10, 20, 0.9);
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid rgba(123, 104, 238, 0.3);
+            margin-top: 80px;
+        }
+        
+        .server-info {
+            margin-bottom: 20px;
+        }
+        
+        .ip-address {
+            font-size: 24px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(123, 104, 238, 0.5);
+            animation: pulse 2s infinite;
+            display: inline-block;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            border-image: var(--gradient) 1;
+            border-radius: 5px;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: var(--light);
+            font-size: 24px;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 50%;
+            background: rgba(123, 104, 238, 0.2);
+        }
+        
+        .social-links a:hover {
+            color: var(--primary);
+            transform: translateY(-5px) scale(1.1);
+            background: rgba(123, 104, 238, 0.4);
+            box-shadow: 0 5px 15px rgba(123, 104, 238, 0.3);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .about {
+                flex-direction: column;
+            }
+            
+            .about.reverse {
+                flex-direction: column;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 10, 20, 0.95);
+                flex-direction: column;
+                padding: 20px;
+                text-align: center;
+                border-top: 1px solid rgba(123, 104, 238, 0.3);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .nav-links li {
+                margin: 15px 0;
+            }
+            
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .feature-card {
+                padding: 20px;
+            }
+            
+            .schedule-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Фоновое изображение и частицы -->
+    <div class="background"></div>
+    <div class="particles" id="particles"></div>
+    <div class="overlay"></div>
+    
+    <!-- Навигация -->
+    <header id="header">
+        <nav>
+            <div class="logo"><i class="fas fa-cube"></i>Vanilafree</div>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home">Главная</a></li>
+                <li><a href="#about">О сервере</a></li>
+                <li><a href="#features">Особенности</a></li>
+                <li><a href="#schedule">Расписание</a></li>
+                <li><a href="#creator">Создатель</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- Основной контент -->
+    <main>
+        <!-- Главный экран -->
+        <section id="home" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Добро пожаловать на Vanilafree!</h1>
+                    <p>Присоединяйся к нашему уютному майнкрафт сообществу. Исследуй уникальный мир, общайся с друзьями и наслаждайся чистой ванильной атмосферой в вечерних тонах.</p>
+                    <a href="#about" class="cta-button">Узнать больше</a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- О сервере с изображениями -->
+        <section id="about">
+            <div class="container">
+                <h2>О нашем сервере</h2>
+                
+                <div class="about">
+                    <div class="about-content">
+                        <h3>Уютный спавн</h3>
+                        <p>Наш сервер начинается с просторного и комфортного спавна, где новые игроки могут ознакомиться с правилами и основными возможностями сервера. Здесь вы найдете всю необходимую информацию для начала вашего приключения.</p>
+                        <p>Спавн выполнен в стиле средневекового замка с современными элементами, что создает уникальную атмосферу и настраивает на захватывающую игру.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="http://46.191.172.132/info/media/photo/spawn.png" alt="Спавн сервера">
+                    </div>
+                </div>
+                
+                <div class="about reverse">
+                    <div class="about-content">
+                        <h3>Теплый бассейн для отдыха</h3>
+                        <p>После долгого исследования мира или сражений с мобами, каждый игрок может расслабиться в нашем теплом бассейне. Это идеальное место для восстановления сил и общения с другими участниками сообщества.</p>
+                        <p>Бассейн оснащен подводным освещением и удобными зонами для отдыха, создающими неповторимую атмосферу уюта.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="http://46.191.172.132/info/media/photo/teplyabas.png" alt="Теплый бассейн">
+                    </div>
+                </div>
+                
+                <div class="about">
+                    <div class="about-content">
+                        <h3>Баня для общения</h3>
+                        <p>Наша баня - это не просто функциональное помещение, а настоящее место силы для игроков. Здесь можно не только восстановить здоровье, но и пообщаться с друзьями, обсудить последние события на сервере или поделиться своими достижениями.</p>
+                        <p>Баня построена в традиционном стиле с использованием натуральных материалов, что создает особую атмосферу уюта и расслабления.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="http://46.191.172.132/info/media/photo/banya.png" alt="Баня">
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Особенности сервера с дополнительными изображениями -->
+        <section id="features">
+            <div class="container">
+                <h2>Особенности сервера</h2>
+                <p>Vanilafree предлагает уникальный игровой опыт, сочетающий ванильный геймплей с комфортными условиями для игры.</p>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Активное сообщество</h3>
+                        <p>Наш сервер объединяет дружелюбных игроков, всегда готовых помочь новичкам и организовать совместные мероприятия.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>Уникальные постройки</h3>
+                        <p>Исследуйте впечатляющие сооружения, созданные нашими игроками, включая подземные бассейны и базу Эндера.</p>
+                        <div class="about-image" style="margin-top: 20px;">
+                            <img src="http://46.191.172.132/info/media/photo/basvid.png" alt="Подземный бассейн">
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Защита от взлома</h3>
+                        <p>Мы обеспечиваем безопасность ваших паролей и комфортную игру без нежелательных вмешательств.</p>
+                        <div class="about-image" style="margin-top: 20px;">
+                            <img src="http://46.191.172.132/info/media/photo/basaandeda.png" alt="База Эндера">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Расписание сервера -->
+        <section id="schedule">
+            <div class="container">
+                <h2>Расписание работы сервера</h2>
+                <div class="schedule">
+                    <div class="schedule-card">
+                        <div class="schedule-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="schedule-content">
+                            <h3>Московское время (МСК)</h3>
+                            <p>Ежедневно с 9:00 до 18:30</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Создатель -->
+        <section id="creator">
+            <div class="container">
+                <div class="creator">
+                    <h2>Создатель сервера</h2>
+                    <div class="creator-content">
+                        <div class="creator-image">
+                            <img src="http://46.191.172.132/info/media/photo/sozd.png" alt="Создатель сервера">
+                        </div>
+                        <p>Наш сервер был создан с любовью к майнкрафту и желанием создать уютное сообщество для игроков, которые ценят ванильный геймплей и дружескую атмосферу.</p>
+                        <p>Присоединяйся к нам и помоги сделать наш сервер еще лучше!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="server-info">
+                <h3>Подключиться к серверу</h3>
+                <div class="ip-address">46.191.172.132</div>
+                <p>Версия: 1.16 - 1.20.1</p>
+            </div>
+            
+            <div class="social-links">
+                <a href="#"><i class="fab fa-telegram"></i></a>
+                <a href="#"><i class="fab fa-discord"></i></a>
+                <a href="#"><i class="fab fa-vk"></i></a>
+            </div>
+            
+            <p>&copy; 2023 Vanilafree Minecraft Server. Все права защищены.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Создание частиц для фона
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Случайный размер и позиция
+                const size = Math.random() * 20 + 5;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 10 + 15;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Плавная прокрутка к якорям
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Закрываем меню на мобильных устройствах
+                    document.getElementById('navLinks').classList.remove('active');
+                }
+            });
+        });
+        
+        // Анимация появления элементов при скролле
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        // Наблюдаем за элементами с анимацией
+        document.addEventListener('DOMContentLoaded', () => {
+            const animatedElements = document.querySelectorAll('.about-content, .about-image, .feature-card, .creator-content, .schedule-card');
+            
+            animatedElements.forEach(el => {
+                // Устанавливаем начальное состояние для анимации
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
+            
+            // Создаем частицы
+            createParticles();
+        });
+        
+        // Эффект параллакса для фона
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const background = document.querySelector('.background');
+            background.style.transform = `scale(1.1) translateY(${scrolled * 0.5}px)`;
+            
+            // Изменение хедера при прокрутке
+            const header = document.getElementById('header');
+            if (scrolled > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Мобильное меню
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('active');
+            
+            // Анимация гамбургер-меню
+            this.classList.toggle('active');
+        });
+        
+        // Добавляем анимацию при загрузке страницы
+        window.addEventListener('load', () => {
+            document.querySelector('.hero').style.animation = 'fadeInUp 1s ease-out';
+        });
+        
+        // Динамическое обновление времени до открытия/закрытия сервера
+        function updateServerStatus() {
+            const now = new Date();
+            const mskOffset = 3 * 60; // MSK UTC+3
+            const localOffset = now.getTimezoneOffset();
+            const mskTime = new Date(now.getTime() + (mskOffset + localOffset) * 60 * 1000);
+            
+            const currentHour = mskTime.getHours();
+            const currentMinute = mskTime.getMinutes();
+            
+            const openTime = 9; // 9:00
+            const closeTime = 18; // 18:30
+            
+            let statusText = '';
+            let isOpen = false;
+            
+            if (currentHour >= openTime && (currentHour < closeTime || (currentHour === closeTime && currentMinute <= 30))) {
+                isOpen = true;
+                statusText = 'Сервер сейчас открыт';
+            } else {
+                isOpen = false;
+                statusText = 'Сервер сейчас закрыт';
+            }
+            
+            // Обновляем статус на странице
+            const statusElement = document.createElement('div');
+            statusElement.innerHTML = `<p style="margin-top: 10px; font-weight: bold; color: ${isOpen ? '#7b68ee' : '#ff6b6b'}">${statusText}</p>`;
+            
+            const scheduleContent = document.querySelector('.schedule-content');
+            if (!document.querySelector('.server-status')) {
+                statusElement.classList.add('server-status');
+                scheduleContent.appendChild(statusElement);
+            } else {
+                document.querySelector('.server-status').innerHTML = statusElement.innerHTML;
+            }
+        }
+        
+        // Обновляем статус каждую минуту
+        setInterval(updateServerStatus, 60000);
+        updateServerStatus(); // Первоначальный вызов
+    </script>
+</body>
+</html>
