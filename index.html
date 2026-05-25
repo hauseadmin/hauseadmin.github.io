@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>GlassMine — Чистое выживание и свобода творчества</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Плавная прокрутка + общий фон */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px; /* Отступ для фиксированной шапки при якорях */
+        }
+
+        body {
+            background-color: #05070a;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: #eef2ff;
+            line-height: 1.5;
+        }
+
+        /* Кастомные неоновые переменные */
+        :root {
+            --neon-green: #0ff0c0;
+            --neon-glow: 0 0 6px rgba(15, 240, 192, 0.5), 0 0 12px rgba(15, 240, 192, 0.3);
+            --dark-surface: #0e1219;
+            --card-bg: #11161f;
+            --border-glow: rgba(15, 240, 192, 0.4);
+        }
+
+        /* Шапка (sticky + glassmorphism) */
+        .header {
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(12px);
+            background: rgba(5, 7, 12, 0.85);
+            border-bottom: 1px solid rgba(15, 240, 192, 0.25);
+            z-index: 100;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, var(--neon-green));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 8px rgba(15, 240, 192, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #e2e8f0;
+            font-weight: 500;
+            transition: 0.25s ease;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: var(--neon-green);
+            box-shadow: var(--neon-glow);
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-green);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Основные секции */
+        section {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        /* Hero секция — центр с логотипом и кнопкой */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .server-logo {
+            max-width: 260px;
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 12px rgba(15, 240, 192, 0.6));
+            transition: transform 0.3s ease, filter 0.3s;
+            border-radius: 24px;
+        }
+
+        .server-logo:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 0 20px #0ff0c0);
+        }
+
+        /* Неоновая кнопка */
+        .neon-btn {
+            background: rgba(15, 240, 192, 0.08);
+            border: 1.5px solid var(--neon-green);
+            color: var(--neon-green);
+            font-weight: 600;
+            padding: 0.9rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 60px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: all 0.25s;
+            box-shadow: 0 0 6px rgba(15, 240, 192, 0.3);
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .neon-btn:hover {
+            background: var(--neon-green);
+            color: #05070a;
+            box-shadow: 0 0 20px #0ff0c0, 0 0 8px #0ff0c0;
+            transform: scale(1.02);
+        }
+
+        /* карточки, блоки */
+        .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            display: inline-block;
+            background: linear-gradient(120deg, #fff, #a0f0e0);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            border-left: 5px solid var(--neon-green);
+            padding-left: 1rem;
+            letter-spacing: -0.3px;
+        }
+
+        .about-text {
+            background: var(--dark-surface);
+            padding: 2rem;
+            border-radius: 32px;
+            border: 1px solid rgba(15, 240, 192, 0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #cfdfee;
+            transition: 0.2s;
+        }
+
+        .card-btn {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 1.5rem;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .card-btn:hover {
+            background: var(--neon-green);
+            color: #05070a;
+            box-shadow: var(--neon-glow);
+            transform: translateY(-3px);
+        }
+
+        /* сетка галереи */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .gallery-card {
+            background: var(--card-bg);
+            border-radius: 28px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(15, 240, 192, 0.15);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--neon-green);
+            box-shadow: 0 20px 30px -12px rgba(15, 240, 192, 0.2), 0 0 0 1px rgba(15, 240, 192, 0.3);
+        }
+
+        .gallery-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s;
+        }
+
+        .gallery-card:hover img {
+            transform: scale(1.03);
+        }
+
+        .caption {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 500;
+            background: #0b0f16;
+            color: #d0e2ff;
+            border-top: 1px solid rgba(15, 240, 192, 0.2);
+            font-size: 1rem;
+        }
+
+        /* блок карты */
+        .map-wrapper {
+            background: linear-gradient(145deg, #0b0f18, #080c14);
+            padding: 2rem;
+            border-radius: 36px;
+            text-align: center;
+            border: 1px solid rgba(15, 240, 192, 0.3);
+        }
+
+        .map-wrapper p {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* footer */
+        .footer {
+            border-top: 1px solid rgba(15, 240, 192, 0.2);
+            background: #03060a;
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: #7c8ea0;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1000px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            section {
+                padding: 3rem 1.5rem;
+            }
+            .section-title {
+                font-size: 1.9rem;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .nav-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .nav-links {
+                justify-content: center;
+                gap: 1.5rem;
+            }
+            .hero {
+                min-height: 80vh;
+            }
+            .server-logo {
+                max-width: 180px;
+            }
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            .neon-btn {
+                padding: 0.7rem 1.5rem;
+                font-size: 1rem;
+            }
+            .about-text {
+                font-size: 1rem;
+                padding: 1.5rem;
+            }
+        }
+
+        /* Доп. улучшения */
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 1.5rem;
+            }
+            .section-title {
+                font-size: 1.7rem;
+            }
+        }
+
+        button {
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .copy-feedback {
+            transition: 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ШАПКА С МЕНЮ (ЯКОРИ) -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo-text">GlassMine</div>
+            <ul class="nav-links">
+                <li><a href="#hero">Главная</a></li>
+                <li><a href="#about">О сервере</a></li>
+                <li><a href="#map-section">Карта</a></li>
+                <li><a href="#gallery">Галерея</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero блок + логотип и кнопка копирования IP -->
+        <section id="hero" class="hero">
+            <!-- Место под логотип: замени URL_ЛОГОТИПА на свою ссылку -->
+            <img src="URL_ЛОГОТИПА" alt="GlassMine Logo" class="server-logo">
+            <button id="copyIpBtn" class="neon-btn copy-btn">IP: 46.191.172.132</button>
+        </section>
+
+        <!-- Блок О сервере -->
+        <section id="about">
+            <h2 class="section-title">✦ О сервере</h2>
+            <div class="about-text">
+                <p>Сервер <strong>GlassMine</strong> сейчас абсолютно чистый — это идеальное место для классического выживания и масштабного строительства. Никакого лишнего спавна, мешающего приватности — только свобода творчества. Никаких донатных привилегий, которые ломают баланс. Ты и твои постройки — главное в мире GlassMine.</p>
+                <p style="margin-top: 1rem;">✨ Ванильное ядро, минималистичный геймплей и уютное комьюнити. Присоединяйся, чтобы оставить свой след!</p>
+            </div>
+        </section>
+
+        <!-- Блок Онлайн-карта -->
+        <section id="map-section">
+            <h2 class="section-title">🗺 Онлайн-карта</h2>
+            <div class="map-wrapper">
+                <p>🌐 Следи за миром в реальном времени через веб-карту!</p>
+                <a href="http://46.191.172.132:8123/" target="_blank" class="card-btn" rel="noopener noreferrer">Открыть карту →</a>
+            </div>
+        </section>
+
+        <!-- Блок Галерея (Спавн и мир) -->
+        <section id="gallery">
+            <h2 class="section-title">🏞 Галерея</h2>
+            <div class="gallery-grid">
+                <!-- Карточка 1: спавн -->
+                <div class="gallery-card">
+                    <img src="URL_КАРТИНКИ_1" alt="Спавн">
+                    <div class="caption">✨ Наш спавн</div>
+                </div>
+                <!-- Карточка 2: строения -->
+                <div class="gallery-card">
+                    <img src="URL_КАРТИНКИ_2" alt="Строения">
+                    <div class="caption">🏗 Зона для застройки</div>
+                </div>
+                <!-- Карточка 3: мир сервера -->
+                <div class="gallery-card">
+                    <img src="URL_КАРТИНКИ_3" alt="Мир сервера">
+                    <div class="caption">🌲 Дикая природа</div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; opacity: 0.7;">(Замени ссылки картинок на свои — сохранится атмосфера)</p>
+        </section>
+    </main>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <p>© 2026 GlassMine. Все права защищены.</p>
+        <p style="margin-top: 0.5rem; font-size: 0.75rem;">Свободное выживание, только чистое творчество ✨</p>
+    </footer>
+
+    <script>
+        (function() {
+            // Получаем кнопку копирования IP
+            const copyButton = document.getElementById('copyIpBtn');
+            if (copyButton) {
+                // Исходный текст кнопки: "IP: 46.191.172.132"
+                const originalText = copyButton.innerText;
+                // IP адрес, который нужно скопировать (без префикса "IP: ")
+                const ipAddress = "46.191.172.132";
+
+                const copyToClipboard = async () => {
+                    try {
+                        await navigator.clipboard.writeText(ipAddress);
+                        // Меняем текст на секунду
+                        copyButton.innerText = "✅ Скопировано!";
+                        copyButton.style.opacity = "0.9";
+                        // Возвращаем исходный текст через 1 секунду
+                        setTimeout(() => {
+                            copyButton.innerText = originalText;
+                            copyButton.style.opacity = "1";
+                        }, 1000);
+                    } catch (err) {
+                        // Ручной fallback на всякий случай (старый метод)
+                        const textarea = document.createElement('textarea');
+                        textarea.value = ipAddress;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        copyButton.innerText = "✅ Скопировано!";
+                        setTimeout(() => {
+                            copyButton.innerText = originalText;
+                        }, 1000);
+                    }
+                };
+
+                copyButton.addEventListener('click', copyToClipboard);
+            }
+        })();
+    </script>
+</body>
+</html>
